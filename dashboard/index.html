@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HireSmart — TalentBridge Hiring Analytics Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --primary: #1E3A8A;
+    --primary-light: #EFF6FF;
+    --accent: #2563EB;
+    --danger: #DC2626;
+    --success: #059669;
+    --warning: #D97706;
+    --dark: #0F172A;
+    --gray-bg: #F8FAFC;
+    --card-bg: #FFFFFF;
+    --border: #E2E8F0;
+    --text-muted: #64748B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+  body { background: var(--gray-bg); color: var(--dark); line-height: 1.5; padding: 24px; }
+  .container { max-width: 1400px; margin: 0 auto; }
+  
+  /* Header */
+  header {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 28px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .header-titles h1 { font-size: 24px; font-weight: 800; color: var(--primary); }
+  .header-titles p { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+  .status-pill {
+    background: #ECFDF5;
+    color: var(--success);
+    border: 1px solid #A7F3D0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* Metric Cards */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .metric-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 4px;
+  }
+  .card-danger::before { background: var(--danger); }
+  .card-warning::before { background: var(--warning); }
+  .card-success::before { background: var(--success); }
+  .card-primary::before { background: var(--accent); }
+  
+  .metric-label { font-size: 12px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); }
+  .metric-val { font-size: 32px; font-weight: 800; color: var(--dark); margin: 6px 0; }
+  .metric-sub { font-size: 12px; font-weight: 600; }
+  .sub-danger { color: var(--danger); }
+  .sub-success { color: var(--success); }
+  
+  /* Grid Sections */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .chart-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .chart-title { font-size: 16px; font-weight: 700; color: var(--primary); }
+  .chart-sub { font-size: 12px; color: var(--text-muted); }
+
+  /* Interactive Simulator */
+  .sim-box {
+    background: linear-gradient(135deg, #1E3A8A, #1D4ED8);
+    color: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+  }
+  .sim-header { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+  .sim-desc { font-size: 13px; opacity: 0.9; margin-bottom: 16px; }
+  .sim-controls {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  .slider-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .slider-group input[type=range] { width: 100%; height: 8px; border-radius: 4px; accent-color: #60A5FA; }
+  .sim-results {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+  }
+  .sim-res-val { font-size: 26px; font-weight: 800; }
+  .sim-res-lbl { font-size: 11px; text-transform: uppercase; opacity: 0.85; }
+
+  /* Tables */
+  .table-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 14px; background: #F1F5F9; color: var(--text-muted); font-weight: 700; border-bottom: 2px solid var(--border); }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  tr:hover td { background: #F8FAFC; }
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+  .badge-danger { background: #FEE2E2; color: var(--danger); }
+  .badge-success { background: #D1FAE5; color: var(--success); }
+  .badge-warning { background: #FEF3C7; color: var(--warning); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-titles">
+      <h1>HireSmart Executive Hiring Intelligence</h1>
+      <p>TalentBridge Recruitment Diagnostics, Metric Engine & Bottleneck Telemetry | Task 1 Deliverable</p>
+    </div>
+    <div>
+      <span class="status-pill">● Phase 5 Sign-Off Completed</span>
+    </div>
+  </header>
+
+  <!-- Metric KPI Cards -->
+  <div class="metrics-row">
+    <div class="metric-card card-danger">
+      <div class="metric-label">Avg Time-To-Hire</div>
+      <div class="metric-val">48.0 <span style="font-size:16px;">Days</span></div>
+      <div class="metric-sub sub-danger">▲ 16.5 Days in Screening Alone</div>
+    </div>
+    <div class="metric-card card-danger">
+      <div class="metric-label">Offer Acceptance Rate</div>
+      <div class="metric-val">67.5%</div>
+      <div class="metric-sub sub-danger">▼ Plunged from 83.3% to 53.8%</div>
+    </div>
+    <div class="metric-card card-warning">
+      <div class="metric-label">90-Day Early Exit Rate</div>
+      <div class="metric-val">19.6%</div>
+      <div class="metric-sub sub-danger">76 of 388 Hires Departed Early</div>
+    </div>
+    <div class="metric-card card-primary">
+      <div class="metric-label">Screening Burden</div>
+      <div class="metric-val">4.51 <span style="font-size:16px;">Apps/Hr</span></div>
+      <div class="metric-sub sub-success">>20 hrs/week per recruiter</div>
+    </div>
+  </div>
+
+  <!-- Interactive Task 2 Simulator -->
+  <div class="sim-box">
+    <div class="sim-header">Task 2 Preview: Automated Screening Impact Simulator</div>
+    <div class="sim-desc">Evaluate the expected pipeline acceleration by replacing manual resume review (currently 16.5 days) with automated AI screening:</div>
+    <div class="sim-controls">
+      <div class="slider-group">
+        <label>Screening Duration: <span id="screeningDaysDisplay" style="font-size:16px; font-weight:800; color:#93C5FD;">16.5</span> Days (Current Baseline)</label>
+        <input type="range" id="screeningSlider" min="1" max="20" step="0.5" value="16.5" oninput="updateSim(this.value)">
+      </div>
+      <div class="sim-results">
+        <div>
+          <div class="sim-res-val" id="simTth">48.0d</div>
+          <div class="sim-res-lbl">New Time-To-Hire</div>
+        </div>
+        <div>
+          <div class="sim-res-val" id="simDaysSaved">0d</div>
+          <div class="sim-res-lbl">Days Saved</div>
+        </div>
+        <div>
+          <div class="sim-res-val" id="simAcceptance">67.5%</div>
+          <div class="sim-res-lbl">Projected Acceptance</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Offers Extended vs. Accepted & Acceptance Rate %</div>
+          <div class="chart-sub">Acceptance rate fell 29.5 percentage points over 12 months</div>
+        </div>
+      </div>
+      <canvas id="offerChart" height="200"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">48-Day Time-to-Hire Stage Breakdown</div>
+          <div class="chart-sub">Screening consumes 34.4% of entire cycle</div>
+        </div>
+      </div>
+      <canvas id="stageChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Sourcing Channel Quality Comparison</div>
+          <div class="chart-sub">Conversion to hire vs. 90-day early exit churn</div>
+        </div>
+      </div>
+      <canvas id="sourcingChart" height="200"></canvas>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Recruiter Overload vs. Time-to-Hire (r = 1.00)</div>
+          <div class="chart-sub">Open requisitions directly stretch recruitment cycle</div>
+        </div>
+      </div>
+      <canvas id="recruiterChart" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Table 1: Sourcing Channels -->
+  <div class="table-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Sourcing Channel Diagnostic Table</div>
+        <div class="chart-sub">Detailed breakdown of applicant volume, conversions, costs, and early exits</div>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Source Channel</th>
+          <th>Applications</th>
+          <th>Interviews</th>
+          <th>Hires</th>
+          <th>Hire Conversion %</th>
+          <th>Early Exits (90d)</th>
+          <th>Early Exit Rate</th>
+          <th>Cost Per Hire</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Employee Referrals</strong></td>
+          <td>480</td>
+          <td>180</td>
+          <td>60</td>
+          <td><span class="badge badge-success">12.5%</span></td>
+          <td>2</td>
+          <td><span class="badge badge-success">3.3%</span></td>
+          <td>$1,200</td>
+        </tr>
+        <tr>
+          <td><strong>LinkedIn Recruiter</strong></td>
+          <td>3,800</td>
+          <td>580</td>
+          <td>122</td>
+          <td>3.2%</td>
+          <td>22</td>
+          <td>18.0%</td>
+          <td>$3,400</td>
+        </tr>
+        <tr>
+          <td><strong>Job Portals (Indeed/Monster)</strong></td>
+          <td>6,200</td>
+          <td>720</td>
+          <td>118</td>
+          <td><span class="badge badge-danger">1.9%</span></td>
+          <td>31</td>
+          <td><span class="badge badge-danger">26.3%</span></td>
+          <td>$2,100</td>
+        </tr>
+        <tr>
+          <td><strong>Direct Careers Website</strong></td>
+          <td>2,450</td>
+          <td>390</td>
+          <td>58</td>
+          <td>2.4%</td>
+          <td>13</td>
+          <td>22.4%</td>
+          <td>$850</td>
+        </tr>
+        <tr>
+          <td><strong>Staffing Agencies</strong></td>
+          <td>650</td>
+          <td>140</td>
+          <td>22</td>
+          <td><span class="badge badge-warning">3.4%</span></td>
+          <td>4</td>
+          <td>18.2%</td>
+          <td>$8,500</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Table 2: Recruiter Capacity -->
+  <div class="table-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Recruiter Capacity & SLA Performance Table</div>
+        <div class="chart-sub">Workload distribution and correlation with hiring velocity</div>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Recruiter</th>
+          <th>Open Requisitions</th>
+          <th>Applications Assigned</th>
+          <th>Monthly Screening Hrs</th>
+          <th>Avg Time-to-Hire</th>
+          <th>Offers Extended</th>
+          <th>Offers Accepted</th>
+          <th>Acceptance Rate</th>
+          <th>Workload Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Sarah Jenkins</strong></td>
+          <td>18</td>
+          <td>2,150</td>
+          <td>48 hrs</td>
+          <td>39.5 Days</td>
+          <td>115</td>
+          <td>92</td>
+          <td><span class="badge badge-success">80.0%</span></td>
+          <td><span class="badge badge-success">Balanced</span></td>
+        </tr>
+        <tr>
+          <td><strong>Mike Ross</strong></td>
+          <td>38</td>
+          <td>3,800</td>
+          <td>78 hrs</td>
+          <td>54.0 Days</td>
+          <td>128</td>
+          <td>74</td>
+          <td><span class="badge badge-danger">57.8%</span></td>
+          <td><span class="badge badge-danger">Severe Overload</span></td>
+        </tr>
+        <tr>
+          <td><strong>Lisa Wong</strong></td>
+          <td>22</td>
+          <td>2,450</td>
+          <td>52 hrs</td>
+          <td>42.0 Days</td>
+          <td>108</td>
+          <td>82</td>
+          <td><span class="badge badge-success">75.9%</span></td>
+          <td><span class="badge badge-success">Balanced</span></td>
+        </tr>
+        <tr>
+          <td><strong>James Cooper</strong></td>
+          <td>42</td>
+          <td>4,100</td>
+          <td>85 hrs</td>
+          <td>56.5 Days</td>
+          <td>135</td>
+          <td>76</td>
+          <td><span class="badge badge-danger">56.3%</span></td>
+          <td><span class="badge badge-danger">Severe Overload</span></td>
+        </tr>
+        <tr>
+          <td><strong>Chloe Patel</strong></td>
+          <td>15</td>
+          <td>1,850</td>
+          <td>42 hrs</td>
+          <td>38.0 Days</td>
+          <td>74</td>
+          <td>56</td>
+          <td><span class="badge badge-success">75.7%</span></td>
+          <td><span class="badge badge-success">Balanced</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // Monthly Data
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const offers = [42, 44, 48, 46, 50, 52, 47, 45, 49, 53, 47, 52];
+  const accepted = [35, 36, 37, 34, 35, 35, 31, 29, 30, 31, 27, 28];
+  const oar = [83.3, 81.8, 77.1, 73.9, 70.0, 67.3, 66.0, 64.4, 61.2, 58.5, 57.4, 53.8];
+
+  // 1. Offer Chart
+  new Chart(document.getElementById('offerChart'), {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Offers Extended', data: offers, backgroundColor: '#93C5FD', borderRadius: 4 },
+        { label: 'Accepted Hires', data: accepted, backgroundColor: '#1D4ED8', borderRadius: 4 },
+        { label: 'Acceptance Rate (%)', data: oar, type: 'line', borderColor: '#DC2626', borderWidth: 2.5, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: 'Offers' } },
+        y1: { position: 'right', min: 40, max: 100, title: { display: true, text: 'Rate (%)' }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+
+  // 2. Stage Breakdown
+  new Chart(document.getElementById('stageChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Screening & Triage (16.5d)', 'Interview Rounds (14.0d)', 'Approvals (9.0d)', 'Offer Decision (8.5d)'],
+      datasets: [{
+        data: [16.5, 14.0, 9.0, 8.5],
+        backgroundColor: ['#EF4444', '#3B82F6', '#F59E0B', '#10B981']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  // 3. Sourcing Quality
+  new Chart(document.getElementById('sourcingChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Referrals', 'LinkedIn', 'Job Portals', 'Career Site', 'Agencies'],
+      datasets: [
+        { label: 'Hire Conversion %', data: [12.5, 3.2, 1.9, 2.4, 3.4], backgroundColor: '#10B981' },
+        { label: '90-Day Early Exit %', data: [3.3, 18.0, 26.3, 22.4, 18.2], backgroundColor: '#EF4444' }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero: true, ticks: { callback: v => v + '%' } } }
+    }
+  });
+
+  // 4. Recruiter Chart
+  new Chart(document.getElementById('recruiterChart'), {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: 'Recruiters',
+        data: [
+          { x: 18, y: 39.5 },
+          { x: 38, y: 54.0 },
+          { x: 22, y: 42.0 },
+          { x: 42, y: 56.5 },
+          { x: 15, y: 38.0 }
+        ],
+        backgroundColor: '#8B5CF6',
+        pointRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { title: { display: true, text: 'Open Requisitions' }, min: 10, max: 45 },
+        y: { title: { display: true, text: 'Time-to-Hire (Days)' }, min: 30, max: 60 }
+      }
+    }
+  });
+
+  // Interactive Simulator
+  function updateSim(val) {
+    document.getElementById('screeningDaysDisplay').innerText = val;
+    const baseOtherStages = 48.0 - 16.5; // 31.5 days
+    const newTth = (parseFloat(val) + baseOtherStages).toFixed(1);
+    const daysSaved = (48.0 - parseFloat(newTth)).toFixed(1);
+    
+    // Model projected acceptance rate based on inverse correlation
+    // Each 2 days saved increases acceptance by ~1.6%
+    const projectedOAR = Math.min(84, (67.5 + (daysSaved * 0.8))).toFixed(1);
+    
+    document.getElementById('simTth').innerText = newTth + 'd';
+    document.getElementById('simDaysSaved').innerText = (daysSaved > 0 ? '+' : '') + daysSaved + 'd';
+    document.getElementById('simAcceptance').innerText = projectedOAR + '%';
+  }
+</script>
+
+</body>
+</html>
