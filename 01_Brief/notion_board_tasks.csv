@@ -1,0 +1,15 @@
+Task ID,Title,Owner,Phase,Priority,Status,Due Date,Linked Deliverable,Reviewer
+TSK-01,Digest Project Brief & Define Success Targets,Elena Vance,Phase 1,Must,Done,Day 1,01_Brief/Project_Brief_Summary.md,Elena Vance
+TSK-02,Establish Role Matrix & RACI Governance,Elena Vance,Phase 2,Must,Done,Day 1,01_Brief/Role_Assignment_Matrix.md,Elena Vance
+TSK-03,Configure Drive Folders & Access Permissions,Amina Al-Mansoor,Phase 3,Must,Done,Day 2,01_Brief/Workspace_Setup_Guide.md,Elena Vance
+TSK-04,Initialize Notion Kanban Board & Prompt Log,Amina Al-Mansoor,Phase 3,Must,Done,Day 2,05_Prompt_Log/AI_Prompt_Log.md,Elena Vance
+TSK-05,Data Ingestion & Integrity Auditing,David Chen,Phase 4,Must,Done,Day 3,02_Data/raw_talentbridge_hiring_data.csv,Elena Vance
+TSK-06,Execute Data Cleansing & Normalization,David Chen,Phase 4,Must,Done,Day 3,03_Analysis/cleaned_talentbridge_hiring_data.csv,Elena Vance
+TSK-07,Compute Core Hiring Metrics & Formulas,David Chen,Phase 4,Must,Done,Day 4,03_Analysis/hiring_metrics_summary.xlsx,Elena Vance
+TSK-08,Sourcing Channel Effectiveness Analysis,Marcus Brody,Phase 4,Must,Done,Day 4,03_Analysis/hiring_metrics_summary.xlsx,David Chen
+TSK-09,Recruiter Workload & Screening Burden Audit,Marcus Brody,Phase 4,Must,Done,Day 5,03_Analysis/hiring_metrics_summary.xlsx,David Chen
+TSK-10,Offer Acceptance Drop-Off & Exit Root Cause,Sophia Rodriguez,Phase 4,Must,Done,Day 5,03_Analysis/hiring_metrics_summary.xlsx,David Chen
+TSK-11,Generate High-Res Trend Visualizations,David Chen,Phase 4,Should,Done,Day 5,04_Reports/charts/,Elena Vance
+TSK-12,Rank Bottlenecks & Synthesize Findings,Team Working Group,Phase 4,Must,Done,Day 6,04_Reports/HireSmart_Task1_Hiring_Insights_Report.md,Elena Vance
+TSK-13,Draft 1-Page Executive Insights Report,David Chen,Phase 5,Must,Done,Day 6,04_Reports/HireSmart_Task1_Hiring_Insights_Report.md,Elena Vance
+TSK-14,Executive QA Sign-off & Task 2 Handoff,Elena Vance,Phase 5,Must,Done,Day 7,04_Reports/HireSmart_Task1_Hiring_Insights_Report.docx,Elena Vance
