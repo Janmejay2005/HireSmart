@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HireSmart Task 1: Hiring Data Insights Report</title>
+<style>
+  :root {
+    --primary: #1E3A8A;
+    --primary-light: #EFF6FF;
+    --secondary: #0284C7;
+    --danger: #DC2626;
+    --danger-light: #FEF2F2;
+    --success: #059669;
+    --success-light: #ECFDF5;
+    --warning: #D97706;
+    --gray-900: #111827;
+    --gray-700: #374151;
+    --gray-500: #6B7280;
+    --gray-200: #E5E7EB;
+    --gray-50: #F9FAFB;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+  body {
+    background: #F3F4F6;
+    color: var(--gray-900);
+    padding: 24px;
+    display: flex;
+    justify-content: center;
+  }
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    background: #FFFFFF;
+    padding: 16mm 18mm;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  header {
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .title-group h1 {
+    font-size: 20px;
+    color: var(--primary);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .title-group p {
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+  .badge-approved {
+    background: var(--success-light);
+    color: var(--success);
+    border: 1px solid var(--success);
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    color: var(--primary);
+    margin: 10px 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 12px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+  .headline-box {
+    background: var(--primary-light);
+    border-left: 3.5px solid var(--primary);
+    padding: 9px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--gray-900);
+  }
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 8px 0;
+  }
+  .kpi-card {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+  }
+  .kpi-title { font-size: 9px; text-transform: uppercase; font-weight: 700; color: var(--gray-500); }
+  .kpi-value { font-size: 18px; font-weight: 800; color: var(--primary); margin: 3px 0; }
+  .kpi-sub { font-size: 9px; color: var(--danger); font-weight: 600; }
+  .kpi-sub.good { color: var(--success); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    text-align: left;
+    padding: 6px 8px;
+    font-weight: 700;
+    font-size: 9.5px;
+  }
+  td {
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--gray-200);
+    color: var(--gray-700);
+  }
+  tr:nth-child(even) td { background: var(--gray-50); }
+  .td-bold { font-weight: 700; color: var(--primary); }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 12px;
+    align-items: start;
+  }
+  .chart-box {
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    overflow: hidden;
+    padding: 4px;
+    background: white;
+  }
+  .chart-box img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+  }
+  ul.findings-list {
+    list-style: none;
+    font-size: 9.8px;
+    line-height: 1.4;
+  }
+  ul.findings-list li {
+    position: relative;
+    padding-left: 14px;
+    margin-bottom: 5px;
+    color: var(--gray-700);
+  }
+  ul.findings-list li::before {
+    content: "•";
+    position: absolute;
+    left: 2px;
+    color: var(--primary);
+    font-weight: 900;
+    font-size: 13px;
+  }
+  .bottlenecks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .bottleneck-item {
+    background: #FFF;
+    border-left: 3px solid var(--danger);
+    border-top: 1px solid var(--gray-200);
+    border-right: 1px solid var(--gray-200);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 9.5px;
+  }
+  .bottleneck-tag {
+    font-weight: 800;
+    color: var(--danger);
+    font-size: 8.5px;
+    margin-right: 4px;
+  }
+  .next-steps-box {
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    border-radius: 5px;
+    padding: 8px 10px;
+    font-size: 10px;
+    margin-top: 6px;
+  }
+  .next-steps-box ol {
+    margin-left: 16px;
+    color: #166534;
+    line-height: 1.4;
+  }
+  footer {
+    border-top: 1px solid var(--gray-200);
+    padding-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--gray-500);
+  }
+  @media print {
+    body { background: white; padding: 0; }
+    .page { box-shadow: none; border-radius: 0; width: 100%; padding: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div>
+    <header>
+      <div class="title-group">
+        <h1>HireSmart Task 1: Hiring Data Insights Report</h1>
+        <p>TalentBridge Talent Acquisition Diagnostics & Process Bottlenecks | Date: October 2026</p>
+      </div>
+      <div>
+        <span class="badge-approved">Approved Sign-off</span>
+      </div>
+    </header>
+
+    <div class="headline-box">
+      <strong>Executive Headline:</strong> TalentBridge’s hiring engine is bottlenecked by an unsustainable <strong>48.0-day time-to-hire</strong>, an offer acceptance rate collapsing by <strong>29.5 percentage points</strong> (from 83.3% down to 53.8%), extreme recruiter screening burnout (<strong>4.51 apps/hr</strong>), and an alarming <strong>19.6% 90-day early exit rate</strong>. A severe 16.5-day resume screening lag triggers candidate drop-offs, while rushed job board placements drive post-hire attrition.
+    </div>
+
+    <div class="metrics-grid">
+      <div class="kpi-card">
+        <div class="kpi-title">Avg Time-to-Hire</div>
+        <div class="kpi-value">48.0d</div>
+        <div class="kpi-sub">Screening takes 16.5d</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Offer Acceptance</div>
+        <div class="kpi-value">67.5%</div>
+        <div class="kpi-sub">Plunged -29.5% pts</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">90-Day Early Exits</div>
+        <div class="kpi-value">19.6%</div>
+        <div class="kpi-sub">76 of 388 Hires Left</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Screening Burden</div>
+        <div class="kpi-value">4.51</div>
+        <div class="kpi-sub">Apps / Recruiter Hr</div>
+      </div>
+    </div>
+
+    <div class="section-title">2. Audited Hiring Metrics & Benchmark Comparison</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>PRD Formula / Definition</th>
+          <th>Audited Value</th>
+          <th>Operational Status & Impact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Average Time-to-Hire</strong></td>
+          <td>Days from requisition/application to accepted offer</td>
+          <td class="td-bold">48.0 Days</td>
+          <td>Extended to 56.0d in Dec; screening accounts for 34.4% of cycle</td>
+        </tr>
+        <tr>
+          <td><strong>Offer Acceptance Rate</strong></td>
+          <td>Accepted offers ÷ total offers × 100 (12-Mo Audited)</td>
+          <td class="td-bold">67.5%</td>
+          <td>Collapsing: 83.3% in Jan → 53.8% in Dec (lost to faster offers)</td>
+        </tr>
+        <tr>
+          <td><strong>Early Exit Rate</strong></td>
+          <td>Early exits (90 days) ÷ total hires × 100</td>
+          <td class="td-bold">19.6%</td>
+          <td>Critical churn: 1 in 5 new hires quits; $1.4M estimated replacement cost</td>
+        </tr>
+        <tr>
+          <td><strong>Channel Performance</strong></td>
+          <td>Hires ÷ applications, per channel</td>
+          <td class="td-bold">Referrals (12.5%) vs Jobs (1.9%)</td>
+          <td>Job portals yield lowest conversion (1.9%) & highest churn (26.3%)</td>
+        </tr>
+        <tr>
+          <td><strong>Recruiter Load Imbalance</strong></td>
+          <td>Open requisitions per recruiter</td>
+          <td class="td-bold">15 to 42 Reqs</td>
+          <td>Overloaded recruiters (>35 reqs) exhibit 55.3d TTH & 57.0% acceptance</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="two-col">
+      <div>
+        <div class="section-title">3. Quantified Diagnostic Findings</div>
+        <ul class="findings-list">
+          <li><strong>Screening Consumes 34.4% of Process:</strong> Recruiters lose 16.5 days in initial resume review alone, exceeding the entire interview phase (14.0 days).</li>
+          <li><strong>Cycle Lag Destroys Offer Acceptance (r = -1.00):</strong> As time-to-hire stretched from 38d to 56d, offer acceptance collapsed from 83.3% to 53.8%.</li>
+          <li><strong>Job Boards Create Volume Mirage:</strong> 42.8% of applications come from job portals, but convert at only 1.9% and drive 40.8% of all early exits (31 of 76).</li>
+          <li><strong>Recruiter Overload Bottleneck (r = 1.00):</strong> Mike Ross & James Cooper manage 55% of all requisitions, suffering a 55.3-day time-to-hire.</li>
+        </ul>
+
+        <div class="section-title">4. Ranked Process Bottlenecks</div>
+        <div class="bottlenecks-list">
+          <div class="bottleneck-item"><span class="bottleneck-tag">[CRITICAL 1]</span><strong>Manual Resume Screening:</strong> 16.5 days lost; slow 4.5 apps/hr screening pace.</div>
+          <div class="bottleneck-item"><span class="bottleneck-tag">[CRITICAL 2]</span><strong>48-Day Time-to-Hire:</strong> 16–24 days slower than industry standard (28–32d).</div>
+          <div class="bottleneck-item"><span class="bottleneck-tag">[HIGH 3]</span><strong>Declining Offer Acceptance:</strong> Plunged 29.5 points due to candidate drop-off.</div>
+          <div class="bottleneck-item"><span class="bottleneck-tag">[HIGH 4]</span><strong>Recruiter Load Imbalance:</strong> Active reqs exceed capacity by up to 70%.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title">Visual Evidence</div>
+        <div class="chart-box">
+          <img src="charts/offers_vs_acceptance_trend.png" alt="Offers vs Acceptance Trend">
+        </div>
+        <div class="chart-box" style="margin-top: 6px;">
+          <img src="charts/time_to_hire_stage_breakdown.png" alt="Stage Breakdown">
+        </div>
+      </div>
+    </div>
+
+    <div class="next-steps-box">
+      <strong>5. Actionable Handoff to Task 2 (Solution Engineering):</strong>
+      <ol>
+        <li><strong>Automated AI Resume Screening:</strong> Deploy intelligent parsing & pre-screening to cut the 16.5-day screening stage down to &lt; 48 hours.</li>
+        <li><strong>Recruiter Capacity Rebalancing:</strong> Cap individual recruiter allocations at 25 open requisitions to restore SLA compliance.</li>
+        <li><strong>Sourcing Channel Pivot:</strong> Expand employee referral incentives and recalibrate job portal screening rubrics to eliminate 90-day retention failure.</li>
+      </ol>
+    </div>
+  </div>
+
+  <footer>
+    <span>HireSmart Project | TalentBridge</span>
+    <span>Lead Sign-off: Elena Vance (HR Project Lead)</span>
+    <span>Analysis: David Chen (People Analytics)</span>
+  </footer>
+</div>
+
+</body>
+</html>
