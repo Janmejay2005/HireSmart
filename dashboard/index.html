@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>HireSmart — TalentBridge Hiring Analytics Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -506,16 +508,22 @@
     }
   });
 
-  // Interactive Simulator
+  // Interactive Simulator with Boundary Clamping & Validation Defense
   function updateSim(val) {
-    document.getElementById('screeningDaysDisplay').innerText = val;
+    let parsed = parseFloat(val);
+    if (isNaN(parsed) || !isFinite(parsed)) {
+      parsed = 16.5; // Safe fallback on corrupted or tampered input
+    }
+    // Strict boundary clamping [1.0 to 30.0 days]
+    parsed = Math.max(1.0, Math.min(30.0, parsed));
+
+    document.getElementById('screeningDaysDisplay').innerText = parsed.toFixed(1);
     const baseOtherStages = 48.0 - 16.5; // 31.5 days
-    const newTth = (parseFloat(val) + baseOtherStages).toFixed(1);
+    const newTth = (parsed + baseOtherStages).toFixed(1);
     const daysSaved = (48.0 - parseFloat(newTth)).toFixed(1);
     
-    // Model projected acceptance rate based on inverse correlation
-    // Each 2 days saved increases acceptance by ~1.6%
-    const projectedOAR = Math.min(84, (67.5 + (daysSaved * 0.8))).toFixed(1);
+    // Model projected acceptance rate based on inverse correlation with bounded guardrails
+    const projectedOAR = Math.max(40.0, Math.min(85.0, (67.5 + (daysSaved * 0.8)))).toFixed(1);
     
     document.getElementById('simTth').innerText = newTth + 'd';
     document.getElementById('simDaysSaved').innerText = (daysSaved > 0 ? '+' : '') + daysSaved + 'd';
