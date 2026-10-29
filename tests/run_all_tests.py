@@ -52,6 +52,7 @@ if __name__ == "__main__":
         ("Phase 3: Workspace, Notion & Prompt Log", "test_phase3_workspace"),
         ("Phase 4: Data Cleansing & Metric Modeling", "test_phase4_data_analysis"),
         ("Phase 5: Insights Report & Delivery Formats", "test_phase5_reports"),
+        ("Phase 6: UI Resilience & Application Security", "test_ui_and_robustness"),
     ]
 
     total_passed = 0
